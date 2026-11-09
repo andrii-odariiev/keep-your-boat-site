@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="uk">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Виклик · Keep your boat</title>
+<meta property="og:title" content="Виклик у Keep your boat">
+<meta property="og:description" content="Друг кидає тобі виклик: обжени його привида на річці!">
+<meta property="og:image" content="https://andrii-odariiev.github.io/keep-your-boat-site/icon.png">
+<link rel="icon" href="icon.png">
+<style>
+  :root { --bg: #f6f1e4; --ink: #2b2118; --muted: #6b5a48; --accent: #a8401f; --card: #fffaf0; --btn: #3f8f2f; }
+  @media (prefers-color-scheme: dark) { :root { --bg: #14202e; --ink: #ece4d2; --muted: #b3a68f; --accent: #f0a46a; --card: #1d2c3e; --btn: #4fa83b; } }
+  body { margin: 0; background: var(--bg); color: var(--ink); font: 17px/1.6 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+  main { max-width: 560px; margin: 0 auto; padding: 40px 16px; text-align: center; }
+  img { width: 112px; height: 112px; border-radius: 26px; }
+  h1 { margin: 14px 0 6px; font-size: 1.6em; }
+  .card { background: var(--card); border-radius: 18px; padding: 18px; margin: 20px 0; }
+  .big { font-size: 1.25em; font-weight: 600; }
+  p { color: var(--muted); margin: 8px 0; }
+  button, a.btn { display: block; width: 100%; box-sizing: border-box; border: 0; border-radius: 14px; padding: 15px; margin: 12px 0;
+    font: 600 1.05em system-ui, sans-serif; cursor: pointer; text-decoration: none; }
+  .go { background: var(--btn); color: #fff; }
+  .alt { background: transparent; color: var(--accent); border: 2px solid var(--accent); }
+  ol { text-align: left; color: var(--muted); padding-left: 1.4em; }
+  #done { color: var(--btn); font-weight: 600; min-height: 1.6em; }
+</style>
+</head>
+<body>
+<main>
+<img src="icon.png" alt="">
+<h1 id="title">Тобі кинули виклик!</h1>
+<div class="card">
+  <p class="big" id="what"></p>
+  <p id="sub"></p>
+</div>
+<button class="go" id="accept">Прийняти виклик</button>
+<p id="done"></p>
+<ol id="steps">
+  <li>Натисни «Прийняти виклик»: виклик скопіюється.</li>
+  <li>Відкрий гру Keep your boat: вона сама побачить виклик і запропонує прийняти.</li>
+</ol>
+<a class="btn alt" id="store" href="https://play.google.com/store/apps/details?id=com.odariiev.keepyourboat">Немає гри? Завантажити</a>
+</main>
+<script>
+(function () {
+  var en = !/^(uk|ru|be)/i.test(navigator.language || "");
+  var q = new URLSearchParams(location.search);
+  var level = parseInt(q.get("l") || "0", 10), score = parseInt(q.get("s") || "0", 10);
+  var code = (location.hash || "").replace(/^#/, "");
+  var T = en ? {
+    title: "You've been challenged!",
+    what: "Level " + level + ": " + score + " points",
+    sub: "Your friend sailed this level. Their ghost will race next to you. Can you beat them?",
+    accept: "Accept the challenge", store: "No game yet? Download",
+    steps: ["Tap “Accept the challenge”: the challenge is copied.", "Open Keep your boat: it will find the challenge and offer to accept it."],
+    done: "Copied! Now open the game.", bad: "This link is broken: ask your friend to send it again."
+  } : {
+    title: "Тобі кинули виклик!",
+    what: "Рівень " + level + ": " + score + " очок",
+    sub: "Друг пройшов цей рівень, і його привид пливтиме поруч із тобою. Обженеш?",
+    accept: "Прийняти виклик", store: "Немає гри? Завантажити",
+    steps: ["Натисни «Прийняти виклик»: виклик скопіюється.", "Відкрий гру Keep your boat: вона сама побачить виклик і запропонує прийняти."],
+    done: "Скопійовано! Тепер відкрий гру.", bad: "Посилання пошкоджене: попроси друга надіслати його ще раз."
+  };
+  if (en) document.documentElement.lang = "en";
+  document.getElementById("title").textContent = T.title;
+  document.getElementById("what").textContent = level > 0 ? T.what : "";
+  document.getElementById("sub").textContent = T.sub;
+  document.getElementById("accept").textContent = T.accept;
+  document.getElementById("store").textContent = T.store;
+  var li = document.querySelectorAll("#steps li");
+  li[0].textContent = T.steps[0]; li[1].textContent = T.steps[1];
+  var done = document.getElementById("done");
+  if (code.indexOf("KYB1.") !== 0) {
+    document.getElementById("accept").disabled = true;
+    done.textContent = T.bad;
+    return;
+  }
+  function copied() { done.textContent = T.done; }
+  function fallback() {
+    var ta = document.createElement("textarea");
+    ta.value = location.href; document.body.appendChild(ta); ta.select();
+    try { document.execCommand("copy"); copied(); } catch (e) {}
+    document.body.removeChild(ta);
+  }
+  document.getElementById("accept").addEventListener("click", function () {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(location.href).then(copied, fallback);
+    } else { fallback(); }
+  });
+})();
+</script>
+</body>
+</html>
